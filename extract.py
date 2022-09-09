@@ -15,31 +15,50 @@ class Loading():
         # self.session.header.update(headers=self.headers)
 
     def industries(self):
-        url = self.baseurl + "industries?"
-        industry = requests.get(url, params=self.params, headers=self.headers)
-        industry_data = industry.json()
-        return industry_data
+        url = self.baseurl+f"industries?"
+        try:
+            industry = requests.get(url, params=self.params, headers=self.headers)
+            if industry.status_code == 200:
+                industry_data = industry.json()
+                return industry_data
+        except:
+            print("status code is not 200")
 
     def fetchingproductlines(self, nodeID):
         url = self.baseurl+f"industries/{nodeID}?"
-        productline = requests.get(url, params=self.params, headers=self.headers)
-        product_line = productline.json()
-        return product_line
+        try:
+            productline = requests.get(url, params=self.params, headers=self.headers)
+            if productline.status_code == 200:
+                product_line = productline.json()
+                return product_line
+        except:
+            print("status code is not 200")
+
 
     def fetchingproducts(self,rightID):
         url = self.baseurl+f"product-lines/{rightID}?"
-        pro = requests.get(url, params=self.params, headers=self.headers)
-        products = pro.json()
-        return products
-
+        try:
+            pro = requests.get(url, params=self.params, headers=self.headers)
+            if pro.status_code == 200:
+                products = pro.json()
+                return products
+        except:
+            print("status code is not 200")
     def fetchingproductdetails(self,nodeID):
         url = self.baseurl+f"products/{nodeID}?"
-        pd = requests.get(url, params=self.params, headers=self.headers)
-        p_details = pd.json()
-        return p_details
-
+        try:
+            pd = requests.get(url, params=self.params, headers=self.headers)
+            if pd.status_code == 200:
+                p_details = pd.json()
+                return p_details
+        except:
+            print("status code is not 200")
     def fetchingproductspecifications(self,equipmentID):
         url = self.baseurl+f"equipment/{equipmentID}/specifications?"
-        ps = requests.get(url, params=self.paramspecs, headers=self.headers)
-        p_specs = ps.json()
-        return p_specs
+        try:
+            ps = requests.get(url, params=self.paramspecs, headers=self.headers)
+            if ps.status_code == 200:
+                p_specs = ps.json()
+                return p_specs
+        except:
+            print("status code is not 200")
