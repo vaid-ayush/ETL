@@ -2,7 +2,7 @@ import requests
 import json
 import config
 import extract
-
+from re import sub
 
 class Pulldata(extract.Loading):
     def data_pull(self):
@@ -56,6 +56,7 @@ class Pulldata(extract.Loading):
                     #attachment = []
                     medias_1 = []
                     literatures_2 = []
+                    equipmentID = None
 
                     if productdet:
                         equipmentID = [sub['equipmentID'] for sub in productdet]
@@ -104,6 +105,7 @@ class Pulldata(extract.Loading):
                         attachments = []
 
                         for dict_attachment in literatures_2:
+
                             attachments_1 = {}
                             attchmentdescription = dict_attachment['title']
                             literatureloc = dict_attachment['literatureItem']
@@ -112,7 +114,55 @@ class Pulldata(extract.Loading):
                             attachments_1['attachmentlongdescription'] = ''
                             attachments_1['attachmentSequence'] = ''
                             attachments.append(attachments_1)
-                        print(attachments)    
+                        print(attachments)
+
+# looping through specifications:
+                    for id in equipmentID:
+                        p_spec = extract.Loading.fetchingproductspecifications(self, id)
+
+
+
+
+                        if p_spec:
+                            for product_spec in p_spec:
+                                if product_spec['groupName'] == "Discharge System" or "Processing System" or "Tub" or "Tractor Requirements":
+                                    operational = {}
+                                    key_val = product_spec["specName"]
+                                    text_value = product_spec["textValue"]
+                                    spec = product_spec["specName"]
+                                    spec = spec.replace(" ", "")
+                                    key_value = ''.join([spec[0].lower(), spec[1:]])
+                                    operational_1 = Pulldata.product_spec_oper(self, key_val, key_value, text_value)
+                                    operational.update(operational_1)
+
+
+                                    #operational = {}
+
+                                    # if product_spec['specName'] == "PTO horsepower minimum":
+                                    #     operational["ptoHorsePower"] = {}
+                                    #     operational['ptoHorsePower']['label'] = product_spec['specName']
+                                    #     operational['ptoHorsePower']['desc'] = product_spec['textValue']
+                                    #
+                                    # if product_spec['specName'] == "Hydraulic flow rate":
+                                    #     operational['Hydraulic flow rate'] = {}
+                                    #     operational['Hydraulic flow rate']['label'] = product_spec['specName']
+                                    #     operational['Hydraulic flow rate']['desc'] = product_spec['textValue']
+
+    def product_spec_oper(self, key_val, key_value, text_value):
+        operational = {}
+        operational[key_value] = {}
+        operational[key_value]["label"] = key_val
+        operational[key_value]["desc"] = text_value
+        return operational
+
+
+                                    # ptoHorsePowermin = product_spec['PTO horsepower minimum']
+                                    # hydraulicflowrate = product_spec['Hydraulic flow rate']
+                                    # hydraulicpressure = product_spec['Hydraulics Pressure']
+
+
+
+
 
 
 
