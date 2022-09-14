@@ -3,6 +3,7 @@ import json
 import config
 import extract
 from re import sub
+import pandas as pd
 
 class Pulldata(extract.Loading):
     def data_pull(self):
@@ -56,7 +57,7 @@ class Pulldata(extract.Loading):
                     #attachment = []
                     medias_1 = []
                     literatures_2 = []
-                    equipmentID = None
+                    equipmentID = []
 
                     if productdet:
                         equipmentID = [sub['equipmentID'] for sub in productdet]
@@ -114,84 +115,176 @@ class Pulldata(extract.Loading):
                             attachments_1['attachmentlongdescription'] = ''
                             attachments_1['attachmentSequence'] = ''
                             attachments.append(attachments_1)
-                        print(attachments)
+                        #print(attachments)
 
 # looping through specifications:
                     for id in equipmentID:
                         p_spec = extract.Loading.fetchingproductspecifications(self, id)
 
-
-
-
                         if p_spec:
+                            operational = {}
+                            dimensions = {}
+                            features = []
+                            engine = {}
+                            drivetrain = {}
+                            electrical = {}
+                            options = []
                             for product_spec in p_spec:
-                                if product_spec['groupName'] == "Discharge System" or "Processing System" or "Tub" or "Tractor Requirements":
-                                    operational = {}
+                                if 'Dimensions' in product_spec['groupName'] or 'Capacities' in product_spec['groupName']:
+                                    #dimensions = {}
                                     key_val = product_spec["specName"]
-                                    text_value = product_spec["textValue"]
-                                    spec = product_spec["specName"]
-                                    spec = spec.replace(" ", "")
-                                    key_value = ''.join([spec[0].lower(), spec[1:]])
-                                    operational_1 = Pulldata.product_spec_oper(self, key_val, key_value, text_value)
-                                    operational.update(operational_1)
+                                    primarydisplay = product_spec["primaryDisplayValue"]
+                                    if primarydisplay is not None:
+                                        spec = product_spec["specName"]
+                                        key_value = Pulldata.camelCase(self, spec)
+                                        sym = product_spec["primarySymbol"]
+                                        if sym:
+                                            text_value = primarydisplay + " " + sym
+                                        else:
+                                            text_value = primarydisplay
+                                        #text_value = primarydisplay + " " + sym
+                                        dimensions_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
+                                        dimensions.update(dimensions_1)
+                                    else:
+                                        continue
+# need to correct this according to the format for group name features
+
+                                elif product_spec['groupName'] == "Features":
+                                    primarydisplay = product_spec["primaryDisplayValue"]
+                                    if primarydisplay is not None:
+                                        key = product_spec["specName"]
+                                        options_1 = key + " - " + primarydisplay
+                                        options.append(options_1)
+                                    else:
+                                        continue
+                                    #     key_value = Pulldata.camelCase(self, spec)
+                                    #     sym = product_spec["primarySymbol"]
+                                    #     text_value = primarydisplay + " " + sym
+                                    #     features_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
+                                    #     features.update(features_1)
+                                    # else:
+                                    #     continue
+
+                                elif 'Engine' in product_spec['groupName'] or 'Power Unit' in product_spec['groupName']:
+                                    key_val = product_spec["specName"]
+                                    primarydisplay = product_spec["primaryDisplayValue"]
+                                    if primarydisplay is not None:
+                                        spec = product_spec["specName"]
+                                        key_value = Pulldata.camelCase(self, spec)
+                                        sym = product_spec["primarySymbol"]
+                                        if sym:
+                                            text_value = primarydisplay + " " + sym
+                                        else:
+                                            text_value = primarydisplay
+                                        #text_value = primarydisplay + " " + sym
+                                        engine_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
+                                        engine.update(engine_1)
+                                    else:
+                                        continue
+
+                                elif 'Options' in product_spec['groupName']:
+                                    primarydisplay = product_spec["primaryDisplayValue"]
+                                    if primarydisplay is not None:
+                                        key = product_spec["specName"]
+                                        options_1 = key + " - " + primarydisplay
+                                        options.append(options_1)
+                                    else:
+                                        continue
+
+#need to do the format according to the features
+
+                                elif 'Transmission System' in product_spec['groupName'] or 'Clutch' in product_spec['groupName'] or 'Drive System' in product_spec['groupName']:
+                                    key_val = product_spec["specName"]
+                                    primarydisplay = product_spec["primaryDisplayValue"]
+                                    if primarydisplay is not None:
+                                        spec = product_spec["specName"]
+                                        key_value = Pulldata.camelCase(self, spec)
+                                        sym = product_spec["primarySymbol"]
+                                        if sym:
+                                            text_value = primarydisplay + " " + sym
+                                        else:
+                                            text_value = primarydisplay
+                                        #text_value = primarydisplay + " " + sym
+                                        drivetrain_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
+                                        drivetrain.update(drivetrain_1)
+                                    else:
+                                        continue
+
+                                elif 'Electrical' in product_spec['groupName'] or 'Mill Motor' in product_spec['groupName']:
+                                    key_val = product_spec["specName"]
+                                    primarydisplay = product_spec["primaryDisplayValue"]
+                                    if primarydisplay is not None:
+                                        spec = product_spec["specName"]
+                                        key_value = Pulldata.camelCase(self, spec)
+                                        sym = product_spec["primarySymbol"]
+                                        if sym:
+                                            text_value = primarydisplay + " " + sym
+                                        else:
+                                            text_value = primarydisplay
+                                        #text_value = primarydisplay + " " + sym
+                                        electrical_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
+                                        electrical.update(electrical_1)
+                                    else:
+                                        continue
+
+                                else:
+                                    key_val = product_spec["specName"]
+                                    primarydisplay = product_spec["primaryDisplayValue"]
+                                    if primarydisplay is not None:
+                                        spec = product_spec["specName"]
+                                        key_value = Pulldata.camelCase(self, spec)
+                                        sym = product_spec["primarySymbol"]
+                                        if sym:
+                                            text_value = primarydisplay + " " + sym
+                                        else:
+                                            text_value = primarydisplay
+                                        operational_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
+                                        operational.update(operational_1)
+                                    else:
+                                        continue
+                            if features:
+                                print(features)
+
+                            if options:
+                                print(options)
+                            #print(operational)
 
 
-                                    #operational = {}
+    # def product_spec_oper(self, key_val, key_value, text_value):
+    #     operational = {}
+    #     operational[key_value] = {}
+    #     operational[key_value]["label"] = key_val
+    #     operational[key_value]["desc"] = text_value
+    #     return operational
+    #
+    # def product_spec_dim(self, key_val, key_value, text_value):
+    #     dimension = {}
+    #     dimension[key_value] = {}
+    #     dimension[key_value]["label"] = key_val
+    #     dimension[key_value]["desc"] = text_value
+    #     return dimension
+    #
+    # def product_spec_features(self, key_val, key_value, text_value):
+    #     features = {}
+    #     features[key_value] = {}
+    #     features[key_value]["label"] = key_val
+    #     features[key_value]["desc"] = text_value
+    #     return features
 
-                                    # if product_spec['specName'] == "PTO horsepower minimum":
-                                    #     operational["ptoHorsePower"] = {}
-                                    #     operational['ptoHorsePower']['label'] = product_spec['specName']
-                                    #     operational['ptoHorsePower']['desc'] = product_spec['textValue']
-                                    #
-                                    # if product_spec['specName'] == "Hydraulic flow rate":
-                                    #     operational['Hydraulic flow rate'] = {}
-                                    #     operational['Hydraulic flow rate']['label'] = product_spec['specName']
-                                    #     operational['Hydraulic flow rate']['desc'] = product_spec['textValue']
+    # key_value is the key of label and desc
+    #key_val is the value of spec name
+    #text_value is the value of primary display value and its unit or symbol
+    def product_spec(self, key_val, key_value, text_value):
+        specs = {}
+        specs[key_value] = {}
+        specs[key_value]["label"] = key_val
+        specs[key_value]["desc"] = text_value
+        return specs
 
-    def product_spec_oper(self, key_val, key_value, text_value):
-        operational = {}
-        operational[key_value] = {}
-        operational[key_value]["label"] = key_val
-        operational[key_value]["desc"] = text_value
-        return operational
-
-
-                                    # ptoHorsePowermin = product_spec['PTO horsepower minimum']
-                                    # hydraulicflowrate = product_spec['Hydraulic flow rate']
-                                    # hydraulicpressure = product_spec['Hydraulics Pressure']
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                                        # for videos_key, videos_values in dict_of_medias.items():
-                                        #     #print(videos_values)
-                                        #     videos_2['desc'] = videos_key['title']
-                                        #     videos_2['longdesc'] = ''
-                                        #     videos_2['src'] = videos_key['videocode']
-                                        #     #print(videos_2)
-
-
-                                #[d['value'] for d in l if 'value' in d]
-
-
-
-
-
-
-
+    def camelCase(self, spec):
+        spec = spec.replace(" ", "")
+        key_value = ''.join([spec[0].lower(), spec[1:]])
+        return key_value
 
 
 ayush = Pulldata()
