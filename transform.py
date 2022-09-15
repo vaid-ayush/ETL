@@ -5,19 +5,42 @@ import extract
 from re import sub
 import pandas as pd
 
+
 class Pulldata(extract.Loading):
     def data_pull(self):
-        keys = ['general', 'images', 'videos', 'attachments', 'operational', 'dimensions', 'features']
-        data_dict = {key: None for key in keys}       #defining the dictionary with keys and None type values
-        data = []               #the dictionary needs to be appended into this list in the end
+        #keys = ['general', 'images', 'videos', 'attachments', 'operational', 'dimensions', 'features', 'engine', 'drivetrain', 'electrical', 'options']
+        #data_dict = {key: None for key in keys}       #defining the dictionary with keys and None type values
+        general = {}
+        images = []
+        videos = []
+        attachments = []
+        operational = {}
+        dimensions = {}
+        features = []
+        engine = {}
+        drivetrain = {}
+        electrical = {}
+        options = []
+        data_dict = {}
+        data = []               #all the dictionaries needs to be appended into this list in the end
         ind_data = extract.Loading.industries(self)     #loading industries data
-        title_values = [sub['title'] for sub in ind_data]
+        category = [sub['title'] for sub in ind_data]
+
         node_ID = [sub['nodeID'] for sub in ind_data]
+
 
 # looping through the other end points for rest of the data
 #looping through product lines
-        for nodes in node_ID:
-            product_lines_data = extract.Loading.fetchingproductlines(self, nodes)
+        for nodes in range(len(node_ID)):
+            for categories in range(nodes, len(category)):
+                general['category'] = category[categories]
+                break
+            #print(general)
+            general['manufacturer'] = "Vermeer"
+            general['msrp'] = 0
+            general['year'] = 2021
+            general['countries'] = ["US"]
+            product_lines_data = extract.Loading.fetchingproductlines(self, node_ID[nodes])
             industry_PL = [sub['industryProductLines'] for sub in product_lines_data]
             #print(industry_PL)
             industryProduct_line = []
@@ -27,13 +50,28 @@ class Pulldata(extract.Loading):
                     industryProduct_line.append(j)
                     #print(industryProduct_line)
             rightnode = [sub['rightNodeId'] for sub in industryProduct_line]
+            #subcategory = industryProduct_line[0]['documentName']
             subcategory = [sub['documentName'] for sub in industryProduct_line]
+            #print(subcategory)
 
+            # for subcategories in subcategory:
+            #
+            #     general['subcategory'] = subcategories
+            #     a.append(general)
+            #     print(a)
+            #     general.clear()
+            # print(a)
 # looping through products via right node ID
-            for nodes in rightnode:
-                productss = extract.Loading.fetchingproducts(self, nodes)
+
+            for nodes_right in range(len(rightnode)):
+                for subcategories in range(nodes_right, len(subcategory)):
+                    general['subcategory'] = subcategory[subcategories]
+                    break
+                #print(general)
+                productss = extract.Loading.fetchingproducts(self, rightnode[nodes_right])
                 nodeid = []
                 model = []
+                descriptiongeneral = []
                 if productss:
                     products_data = [sub['products'] for sub in productss]
                     products_d = []
@@ -49,8 +87,18 @@ class Pulldata(extract.Loading):
 
 #looping through product details via nodeid for the details of products
 
-                for id in nodeid:
-                    productdet = extract.Loading.fetchingproductdetails(self, id)
+                for id in range(len(nodeid)):
+                    for models in range(id, len(model)):
+                        general['model'] = model[models]
+                        break
+                    for description_general in range(id, len(descriptiongeneral)):
+                        general['description'] = descriptiongeneral[description_general]
+                        break
+                    # ****************************************************
+                    data_dict['general'] = general
+                    # print(data_dict)
+                    # *****************************************************
+                    productdet = extract.Loading.fetchingproductdetails(self, nodeid[id])
                     #images = []
                     #videos = []
                     equipmentID = []
@@ -72,8 +120,8 @@ class Pulldata(extract.Loading):
                         images = []
                         videos = []
                         image_0 = {}
-                        image_0['desc'] = ''
-                        image_0['longdesc'] = ''
+                        image_0['desc'] = ""
+                        image_0['longdesc'] = ""
                         image_0['src'] = image0src
                         images.append(image_0)
 
@@ -85,7 +133,7 @@ class Pulldata(extract.Loading):
                                 desc = dict_of_medias['title']
                                 src = dict_of_medias['videoCode']
                                 videos_2['desc'] = desc
-                                videos_2['longdesc'] = ''
+                                videos_2['longdesc'] = ""
                                 videos_2['src'] = src
                                 videos.append(videos_2)
                         #print(videos)   #if print at this indent correct results
@@ -94,7 +142,7 @@ class Pulldata(extract.Loading):
                                 desc = dict_of_medias['title']
                                 src = dict_of_medias['image']
                                 images_1['desc'] = desc
-                                images_1['longdesc'] = ''
+                                images_1['longdesc'] = ""
                                 images_1['src'] = src
                                 images.append(images_1)
                         #print(images)
@@ -112,14 +160,28 @@ class Pulldata(extract.Loading):
                             literatureloc = dict_attachment['literatureItem']
                             attachments_1['attachmentDescription'] = attchmentdescription
                             attachments_1['attachmentLocation'] = literatureloc
-                            attachments_1['attachmentlongdescription'] = ''
-                            attachments_1['attachmentSequence'] = ''
+                            attachments_1['attachmentlongdescription'] = ""
+                            attachments_1['attachmentSequence'] = ""
                             attachments.append(attachments_1)
                         #print(attachments)
 
 # looping through specifications:
-                    for id in equipmentID:
-                        p_spec = extract.Loading.fetchingproductspecifications(self, id)
+                    for id_equipment in equipmentID:
+                        data_dict['images'] = images
+                        data_dict['videos'] = videos
+                        data_dict['attachments'] = attachments
+                        # for images_var in range(id_equipment, len(images)):
+                        #     data_dict['images'] = images[images_var]
+                        #     break
+                        # for videos_var in range(id_equipment, len(videos)):
+                        #     data_dict['videos'] = videos[videos_var]
+                        #     break
+                        # for attachments_var in range(id_equipment, len(attachments)):
+                        #     data_dict['attachments'] = attachments[attachments_var]
+                        #     break
+                        #print(data_dict)
+
+                        p_spec = extract.Loading.fetchingproductspecifications(self, id_equipment)
 
                         if p_spec:
                             operational = {}
@@ -145,6 +207,8 @@ class Pulldata(extract.Loading):
                                         #text_value = primarydisplay + " " + sym
                                         dimensions_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
                                         dimensions.update(dimensions_1)
+                                        if dimensions:
+                                            data_dict['dimensions'] = dimensions
                                     else:
                                         continue
 # need to correct this according to the format for group name features
@@ -153,8 +217,10 @@ class Pulldata(extract.Loading):
                                     primarydisplay = product_spec["primaryDisplayValue"]
                                     if primarydisplay is not None:
                                         key = product_spec["specName"]
-                                        options_1 = key + " - " + primarydisplay
-                                        options.append(options_1)
+                                        features_1 = key + " - " + primarydisplay
+                                        features.append(features_1)
+                                        if features:
+                                            data_dict['features'] = features
                                     else:
                                         continue
                                     #     key_value = Pulldata.camelCase(self, spec)
@@ -179,6 +245,8 @@ class Pulldata(extract.Loading):
                                         #text_value = primarydisplay + " " + sym
                                         engine_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
                                         engine.update(engine_1)
+                                        if engine:
+                                            data_dict['engine'] = engine
                                     else:
                                         continue
 
@@ -188,6 +256,8 @@ class Pulldata(extract.Loading):
                                         key = product_spec["specName"]
                                         options_1 = key + " - " + primarydisplay
                                         options.append(options_1)
+                                        if options:
+                                            data_dict['options'] = options
                                     else:
                                         continue
 
@@ -207,6 +277,8 @@ class Pulldata(extract.Loading):
                                         #text_value = primarydisplay + " " + sym
                                         drivetrain_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
                                         drivetrain.update(drivetrain_1)
+                                        if drivetrain:
+                                            data_dict['drivetrain'] = drivetrain
                                     else:
                                         continue
 
@@ -224,6 +296,8 @@ class Pulldata(extract.Loading):
                                         #text_value = primarydisplay + " " + sym
                                         electrical_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
                                         electrical.update(electrical_1)
+                                        if electrical:
+                                            data_dict['electrical'] = electrical
                                     else:
                                         continue
 
@@ -240,16 +314,27 @@ class Pulldata(extract.Loading):
                                             text_value = primarydisplay
                                         operational_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
                                         operational.update(operational_1)
+                                        if operational:
+                                            data_dict['operational'] = operational
                                     else:
                                         continue
-                            if features:
-                                print(features)
 
-                            if options:
-                                print(options)
+                                data.append(data_dict)
+
+                            # if data_dict in data:
+                            #     continue
+                            # else:
+                            #     data.append(data_dict)
+        print(data)
+
+                            # if features:
+                            #     print(features)
+                            #
+                            # if options:
+                            #     print(options)
                             #print(operational)
 
-
+            #print(general)
     # def product_spec_oper(self, key_val, key_value, text_value):
     #     operational = {}
     #     operational[key_value] = {}
