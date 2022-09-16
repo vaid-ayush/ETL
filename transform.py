@@ -214,8 +214,15 @@ class Pulldata(extract.Loading):
                                             text_value = primarydisplay + " " + sym
                                         else:
                                             text_value = primarydisplay
-                                        #text_value = primarydisplay + " " + sym
-                                        dimensions_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
+                                        text_sec = ""
+                                        secondary_value = product_spec['secondaryDisplayValue']
+                                        if secondary_value:
+                                            sec_sym = product_spec['secondarySymbol']
+                                            if sec_sym:
+                                                text_sec = " ( " + secondary_value + " " + sec_sym + " )"
+                                            else:
+                                                text_sec = " ( " + secondary_value + " )"
+                                        dimensions_1 = Pulldata.product_spec(self, key_val, key_value, text_value, text_sec)
                                         dimensions.update(dimensions_1)    #check this
                                         #temp = dimensions
                                     #     if dimensions:
@@ -230,17 +237,6 @@ class Pulldata(extract.Loading):
                                         key = product_spec["specName"]
                                         features_1 = key + " - " + primarydisplay
                                         features.append(features_1)
-                                    #     if features:
-                                    #         data_dict['features'] = features
-                                    # else:
-                                    #     continue
-                                    #     key_value = Pulldata.camelCase(self, spec)
-                                    #     sym = product_spec["primarySymbol"]
-                                    #     text_value = primarydisplay + " " + sym
-                                    #     features_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
-                                    #     features.update(features_1)
-                                    # else:
-                                    #     continue
 
                                 elif 'Engine' in product_spec['groupName'] or 'Power Unit' in product_spec['groupName']:
                                     key_val = product_spec["specName"]
@@ -253,13 +249,16 @@ class Pulldata(extract.Loading):
                                             text_value = primarydisplay + " " + sym
                                         else:
                                             text_value = primarydisplay
-                                        #text_value = primarydisplay + " " + sym
-                                        engine_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
+                                        text_sec = ""
+                                        secondary_value = product_spec['secondaryDisplayValue']
+                                        if secondary_value:
+                                            sec_sym = product_spec['secondarySymbol']
+                                            if sec_sym:
+                                                text_sec = " ( " + secondary_value + " " + sec_sym + " )"
+                                            else:
+                                                text_sec = " ( " + secondary_value + " )"
+                                        engine_1 = Pulldata.product_spec(self, key_val, key_value, text_value, text_sec)
                                         engine.update(engine_1)
-                                    #     if engine:
-                                    #         data_dict['engine'] = engine
-                                    # else:
-                                    #     continue
 
                                 elif 'Options' in product_spec['groupName']:
                                     primarydisplay = product_spec["primaryDisplayValue"]
@@ -267,10 +266,7 @@ class Pulldata(extract.Loading):
                                         key = product_spec["specName"]
                                         options_1 = key + " - " + primarydisplay
                                         options.append(options_1)
-                                    #     if options:
-                                    #         data_dict['options'] = options
-                                    # else:
-                                    #     continue
+
 
 #need to do the format according to the features
 
@@ -285,8 +281,15 @@ class Pulldata(extract.Loading):
                                             text_value = primarydisplay + " " + sym
                                         else:
                                             text_value = primarydisplay
-                                        #text_value = primarydisplay + " " + sym
-                                        drivetrain_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
+                                        text_sec = ""
+                                        secondary_value = product_spec['secondaryDisplayValue']
+                                        if secondary_value:
+                                            sec_sym = product_spec['secondarySymbol']
+                                            if sec_sym:
+                                                text_sec = " ( " + secondary_value + " " + sec_sym + " )"
+                                            else:
+                                                text_sec = " ( " + secondary_value + " )"
+                                        drivetrain_1 = Pulldata.product_spec(self, key_val, key_value, text_value, text_sec)
                                         drivetrain.update(drivetrain_1)
                                     #     if drivetrain:
                                     #         data_dict['drivetrain'] = drivetrain
@@ -304,8 +307,15 @@ class Pulldata(extract.Loading):
                                             text_value = primarydisplay + " " + sym
                                         else:
                                             text_value = primarydisplay
-                                        #text_value = primarydisplay + " " + sym
-                                        electrical_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
+                                        text_sec = ""
+                                        secondary_value = product_spec['secondaryDisplayValue']
+                                        if secondary_value:
+                                            sec_sym = product_spec['secondarySymbol']
+                                            if sec_sym:
+                                                text_sec = " ( " + secondary_value + " " + sec_sym + " )"
+                                            else:
+                                                text_sec = " ( " + secondary_value + " )"
+                                        electrical_1 = Pulldata.product_spec(self, key_val, key_value, text_value, text_sec)
                                         electrical.update(electrical_1)
                                         # if electrical not in data_dict['electrical']:
                                         #     data_dict['electrical'] = electrical
@@ -326,14 +336,14 @@ class Pulldata(extract.Loading):
                                         else:
                                             text_value = primarydisplay
                                         #adding secondary value also in the desc
-                                        text_sec
+                                        text_sec = ""
                                         secondary_value = product_spec['secondaryDisplayValue']
                                         if secondary_value:
                                             sec_sym = product_spec['secondarySymbol']
                                             if sec_sym:
-                                                text_sec = secondary_value + " " + sec_sym
+                                                text_sec = " ( " + secondary_value + " " + sec_sym + " )"
                                             else:
-                                                text_sec = secondary_value
+                                                text_sec = " ( " + secondary_value + " )"
                                         operational_1 = Pulldata.product_spec(self, key_val, key_value, text_value, text_sec)
                                         operational.update(operational_1)
                                     #     if operational:
@@ -377,7 +387,7 @@ class Pulldata(extract.Loading):
                             # else:
 
                             #     data.append(data_dict)
-        with open('json_output_2.json', 'w', encoding='utf8') as json_file:
+        with open('json_output_3.json', 'w', encoding='utf8') as json_file:
             json.dump(data, json_file, indent=6, ensure_ascii=False)
 
         #print(data)
@@ -396,11 +406,11 @@ class Pulldata(extract.Loading):
     #text_value is the value of primary display value and its unit or symbol
     #text_sec is the secondary text value
 
-    def product_spec(self, key_val, key_value, text_value, text_sec=""):
+    def product_spec(self, key_val, key_value, text_value, text_sec):
         specs = {}
         specs[key_value] = {}
         specs[key_value]["label"] = key_val
-        specs[key_value]["desc"] = text_value + " ( " + text_sec + " )"
+        specs[key_value]["desc"] = text_value + text_sec
         return specs
 
     def camelCase(self, spec):
