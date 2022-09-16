@@ -25,9 +25,7 @@ class Pulldata(extract.Loading):
         data = []               #all the dictionaries needs to be appended into this list in the end
         ind_data = extract.Loading.industries(self)     #loading industries data
         category = [sub['title'] for sub in ind_data]
-
         node_ID = [sub['nodeID'] for sub in ind_data]
-
 
 # looping through the other end points for rest of the data
 #looping through product lines
@@ -191,6 +189,15 @@ class Pulldata(extract.Loading):
                             drivetrain = {}
                             electrical = {}
                             options = []
+
+                            data_dict['operational'] = {}
+                            data_dict['dimensions'] = {}
+                            data_dict['features'] = []
+                            data_dict['engine'] = {}
+                            data_dict['drivetrain'] = {}
+                            data_dict['electrical'] = {}
+                            data_dict['options'] = []
+
                             for product_spec in p_spec:
                                 if 'Dimensions' in product_spec['groupName'] or 'Capacities' in product_spec['groupName']:
                                     #dimensions = {}
@@ -206,7 +213,8 @@ class Pulldata(extract.Loading):
                                             text_value = primarydisplay
                                         #text_value = primarydisplay + " " + sym
                                         dimensions_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
-                                        dimensions.update(dimensions_1)
+                                        dimensions.update(dimensions_1)    #check this
+                                        #temp = dimensions
                                         if dimensions:
                                             data_dict['dimensions'] = dimensions
                                     else:
@@ -296,6 +304,8 @@ class Pulldata(extract.Loading):
                                         #text_value = primarydisplay + " " + sym
                                         electrical_1 = Pulldata.product_spec(self, key_val, key_value, text_value)
                                         electrical.update(electrical_1)
+                                        # if electrical not in data_dict['electrical']:
+                                        #     data_dict['electrical'] = electrical
                                         if electrical:
                                             data_dict['electrical'] = electrical
                                     else:
@@ -318,14 +328,25 @@ class Pulldata(extract.Loading):
                                             data_dict['operational'] = operational
                                     else:
                                         continue
+                            #data.update(data_dict)
+                            #clear data_dict here
 
-                                data.append(data_dict)
+
+                            print(data_dict)
+                            for k,v in data_dict.items():
+                                if v:
+                                    data.append(data_dict)
+
 
                             # if data_dict in data:
                             #     continue
                             # else:
+
                             #     data.append(data_dict)
-        print(data)
+        with open('json_output_2.json', 'w', encoding='utf8') as json_file:
+            json.dump(data, json_file, indent=6, ensure_ascii=False)
+
+        #print(data)
 
                             # if features:
                             #     print(features)
